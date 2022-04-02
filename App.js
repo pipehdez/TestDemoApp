@@ -1,20 +1,41 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import * as React from "react";
+import { NavigationContainer } from "@react-navigation/native";
+import { StatusBar } from "expo-status-bar";
+import { NativeBaseProvider } from "native-base";
 
-export default function App() {
+import {MainNavigation, HomeNavigation} from "./src/navigation/Stack";
+
+import { Provider as AuthProvider } from "./src/context/AuthContext";
+import { Context as AuthContext } from "./src/context/AuthContext";
+
+const App = ({ navigation }) => {
+  const { state } = React.useContext(AuthContext);
+  console.log("App state", state);
   return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <NativeBaseProvider>
+      <NavigationContainer>
+        {console.log(state.user)}
+        {state.isLoading ? (
+          // We haven't finished checking for the token yet
+          console.log("Loading...")
+        ) : state.token == null ? (
+          // No token found, user isn't signed in
+          <MainNavigation />
+        ) : (
+          // User is signed in
+          <HomeNavigation />
+        )}
+        {/*  */}
+        <StatusBar style="auto" />
+      </NavigationContainer>
+    </NativeBaseProvider>
   );
-}
+};
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+export default () => {
+  return (
+    <AuthProvider>
+      <App />
+    </AuthProvider>
+  );
+};
